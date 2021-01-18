@@ -122,8 +122,8 @@ class Util {
   getBlockchainName(blockchain){
     let chainArr = {
       okchain: {
-        token: 'TOKT',
-        name: 'TOKT',
+        token: 'OKT',
+        name: 'OKT',
         flag: true
       },
     };

@@ -79,23 +79,23 @@
         slider: null, //滚动条DOM元素
         thunk: null, //拖拽DOM元素
         progress:{
-          per: 2, //当前值
+          per: 1, //当前值
           min: 1,
           max: 20
         },
         transfer: {
           'account': '',
           'amount': 0,
-          'token': 'TOKT',
+          'token': 'OKT',
           'memo': '',
-          'fee': 0.001250,
-          'gasPrice': '0.0015',
+          'fee': 0.1, 
+          'gasPrice': '0.0000005',
           'gasLimit': 200000
         },
-        utoken: 'tokt',
+        utoken: 'okt',
         account_number: 0,
         sequence: 0,
-        decimal: 8,
+        decimal: 18,
         values: [],
         coin: {
           'cny': 1,
@@ -180,7 +180,8 @@
         this.slider = this.$refs.slider;
         this.thunk = this.$refs.thunk;
         let _this = this;
-        this.transfer.fee = 0.02 * (this.progress.per / this.progress.max).toFixed(6)
+        this.transfer.fee = 1 * (this.progress.per / this.progress.max).toFixed(18)
+        console.log(this.transfer.fee);
         this.thunk.onmousedown = function (e) {
           let width = parseInt(_this.width);
           let disX = e.clientX;
@@ -198,8 +199,9 @@
             _this.progress.per = Math.ceil((max - min) * scale + min);
             _this.progress.per = Math.max(_this.progress.per, min);
             _this.progress.per = Math.min(_this.progress.per, max);
-            _this.transfer.fee = 0.001 * (_this.progress.per / max).toFixed(6)
+            _this.transfer.fee = 1 * (_this.progress.per / max).toFixed(18)
 
+          console.log(_this.transfer.fee);
           }
           document.onmouseup = function (e) {
             document.onmousemove = document.onmouseup = null;
@@ -252,7 +254,7 @@
 
         this.transferring = true;
         // 普通设置
-        let fee = new BigNumber(this.transfer.fee).toFixed(8);
+        let fee = new BigNumber(this.transfer.fee).toFixed(18);
         let limit = this.transfer.gasLimit.toString();
 
         this.getBalance().then((res)=>{
@@ -263,9 +265,8 @@
             return mathExtension.getIdentity(this.config.network);
           }).then(() => {
             let transaction = {
-              chain_id: this.config.network.chainId,
               account_number: this.account_number.toString(),
-              sequence: this.sequence.toString(),
+              chain_id: this.config.network.chainId,
               fee: {
                 amount: [{
                   denom: this.transfer.token.toLowerCase(),
@@ -277,18 +278,20 @@
               msgs:
                 [
                   {
-                    type: "okchain/token/MsgTransfer",
+                    type: "okexchain/token/MsgTransfer",
                     value: {
-                      from_address: this.account,
                       amount:[{
-                        amount: new BigNumber(this.transfer.amount).toFixed(8),
+                        amount: new BigNumber(this.transfer.amount).toFixed(18),
                         denom: this.transfer.token.toLowerCase()
                       }],
+                      from_address: this.account,
                       to_address: address
                     }
                   }
-                ]
+                ],
+              sequence: this.sequence.toString()
             };
+            console.log("->",JSON.stringify(transaction));
             mathExtension.requestSignature(transaction, this.config.network).then(signedTransaction => {
               let trx = {
                 tx:{
@@ -330,7 +333,6 @@
         }).then((res)=>{
           console.log(res);
           if (res.data.code) {
-            let log = JSON.parse(res.data.raw_log);
             this.$alert(log.message);
             this.transferring = false;
           } else if (res.data.txhash) {

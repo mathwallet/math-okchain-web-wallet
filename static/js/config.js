@@ -2,11 +2,11 @@ export default {
   root: process.env.NODE_ENV === 'production' ? '/web' : '',
   website: 'https://mathwallet.org',
   okchain: {
-    nodeUrl: 'https://okex.maiziqianbao.net/okchain/v1',
-    token: 'TOKT',
+    nodeUrl: 'https://www.okex.com/okexchain-test/v1',
+    token: 'OKT',
     network: {
-      blockchain: 'okchain',
-      chainId: 'okchain'
+      blockchain: 'okexchain',
+      chainId: 'okexchain-65'
     }
   },
   domain: 'http://localhost:8080',
